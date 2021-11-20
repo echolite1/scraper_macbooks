@@ -168,7 +168,7 @@ async function scrapeMacs(){
                         break;
                     case 2: // 13 inch
                         if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1 || link.search('2018') != -1 || link.search('2019') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
-                            console.log('2015-19 13 inch -', link);
+                            console.log('2015-19 13 inch -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 13 Pro');
@@ -201,7 +201,7 @@ async function scrapeMacs(){
                 nummer = await anzeigeNummer.getProperty('textContent');
                 anzeigen = await nummer.jsonValue();
                 anzeigen = parseInt(anzeigen.substr(1, 2));             // here we understand how much available
-                console.log(year, 'Total:', anzeigen); // need it here
+                console.log(modelSwitcher, year, 'Total:', anzeigen); // need it here
 
                 // if (anzeigen > 24){
                 //      link = link + '&page' + pageNumber          // could be implemented in the future
