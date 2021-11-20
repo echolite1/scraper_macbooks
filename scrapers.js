@@ -24,7 +24,7 @@ if (inputYear < 2015 || year < 2015){
 const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';          // https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
 var pageNumber = 1;
-var maxYear = yyyy;
+var maxYear = yyyy; // < yyyy == < 2021 == 2020 the last one
 var defaultTime = 850;                     // 550 w/o doubler // until 14.09 == 750
 
 // variables for excel
@@ -136,7 +136,7 @@ async function scrapeMacs(){
                 var counter = 1;
                 var macModel = [
                     '?f_prop_season=' + year,
-                    '-pro/15?f_prop_season=' + year, //https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
+                    '-pro/15?f_prop_season=' + year,
                     '-pro/13?f_prop_season=' + year,
                     '-air/13?f_prop_season=' + year,
                     '-pro/14'
@@ -147,15 +147,15 @@ async function scrapeMacs(){
 
                 // ignore creating of non-existing models and creating worksheets
                 switch(modelSwitcher){
-                    case 0:
-                        if(link.search('2018') != -1 || link.search('2019') != -1 || link.search('2020') != -1){
+                    case 0: // 12 inch
+                        if(link.search('2018') != -1 || link.search('2019') != -1 || link.search('2020') != -1 || link.search('2021') != -1){
                             console.log('2018/-19/-20 12 inch -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 12 inch');
                         }
                         break;
-                    case 1:
+                    case 1: // 15 inch
                         if(link.search('2020') != -1 || link.search('2015') != -1 || link.search('2016') != -1){
                             console.log('2015/-20 15 inch -');//, link);
                             // year++;
@@ -166,24 +166,24 @@ async function scrapeMacs(){
                             worksheet = workbook.addWorksheet(year + ' 15 Pro');
                         }
                         break;
-                    case 2:
-                        if(link.search('2015') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
-                            console.log('2015-17 13 inch -', link);
+                    case 2: // 13 inch
+                        if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1 || link.search('2018') != -1 || link.search('2019') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
+                            console.log('2015-19 13 inch -', link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 13 Pro');
                         }
                         break;
-                    case 3:
-                        if(link.search('2016') != -1 || link.search('2017') != -1){
-                            console.log('2016/17 Air -');//, link);
+                    case 3: // Air
+                        if(link.search('2016') != -1 || link.search('2017') != -1 || link.search('2018') != -1){
+                            console.log('2016-18 Air -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' Air');
                         }
                         break;
                     default:
-                        console.log('switch error');
+                        console.log('modelSwitcher error');
                 }
                 worksheet.column(1).setWidth(12);
                 worksheet.column(2).setWidth(8);
