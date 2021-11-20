@@ -1,0 +1,17 @@
+{
+  "name": "scrrra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "excel4node": "^1.7.2",
+    "prompt-sync": "^4.2.0",
+    "puppeteer": "^8.0.0"
+  }
+}
