@@ -24,7 +24,7 @@ if (inputYear < 2015 || year < 2015){
 const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';          // https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
 var pageNumber = 1;
-var maxYear = yyyy; // < yyyy == < 2021 == 2020 the last one
+var maxYear = yyyy+1; // < yyyy == < 2021 == 2020 the last one
 var defaultTime = 850;                     // 550 w/o doubler // until 14.09 == 750
 
 // variables for excel
@@ -130,7 +130,7 @@ async function scrapeMacs(){
     const page = await browser.newPage();
     console.clear();
 
-    while (modelSwitcher < 4){                                    //default from 1 < 3       // пока что 12 и Эир не нужны
+    while (modelSwitcher < 5){                                    //default from 1 < 3       // пока что 12 и Эир не нужны
         while(year < maxYear){
             try{
                 var counter = 1;
@@ -156,7 +156,7 @@ async function scrapeMacs(){
                         }
                         break;
                     case 1: // 15 inch
-                        if(link.search('2020') != -1 || link.search('2015') != -1 || link.search('2016') != -1){
+                        if(link.search('2020') != -1 || link.search('2015') != -1 || link.search('2021') != -1){
                             console.log('2015/-20 15 inch -');//, link);
                             // year++;
                             // link = constantLink + macModel[modelSwitcher];
@@ -167,19 +167,27 @@ async function scrapeMacs(){
                         }
                         break;
                     case 2: // 13 inch
-                        if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1 || link.search('2018') != -1 || link.search('2019') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
-                            console.log('2015-19 13 inch -');//, link);
+                        if(link.search('2015') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
+                            console.log('2015 13 inch -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 13 Pro');
                         }
                         break;
                     case 3: // Air
-                        if(link.search('2016') != -1 || link.search('2017') != -1 || link.search('2018') != -1){
-                            console.log('2016-18 Air -');//, link);
+                        if(link.search('2016') != -1 || link.search('2017') != -1 || link.search('2021') != -1){
+                            console.log('2016-17 Air -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' Air');
+                        }
+                        break;
+                    case 4: // 14 inch
+                        if(link.search('2019') != -1 || link.search('2020') != -1){
+                            console.log('14 2019-20 -');
+                        }
+                        else{
+                            worksheet = workbook.addWorksheet(year + ' 14 Pro');
                         }
                         break;
                     default:
@@ -201,7 +209,7 @@ async function scrapeMacs(){
                 nummer = await anzeigeNummer.getProperty('textContent');
                 anzeigen = await nummer.jsonValue();
                 anzeigen = parseInt(anzeigen.substr(1, 2));             // here we understand how much available
-                console.log(modelSwitcher, year, 'Total:', anzeigen); // need it here
+                console.log(macModel[modelSwitcher], year, 'Total:', anzeigen); // need it here
 
                 // if (anzeigen > 24){
                 //      link = link + '&page' + pageNumber          // could be implemented in the future
@@ -210,7 +218,7 @@ async function scrapeMacs(){
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
                 
-                for( ; counter < anzeigen + 1; counter++){
+                for( ; counter < 2; counter++){//anzeigen + 1; counter++){ // here you can limit number of anzeigen
                     // check if it is 'Kein Ankauf'
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + counter + ']/a/div/div[4]/button/ng-switch/span');
                     btnTxt = await mainPageButton.getProperty('textContent');
@@ -325,7 +333,7 @@ async function scrapeMacs(){
     var counter = 1;
     var link = constantLink + '-pro/16';
     try {
-        await page.goto(link);
+        await page.goto(link); //https://www.rebuy.de/verkaufen/notebooks/apple/macbook-pro/16
         await delay(defaultTime);//test OCT
         
 console.log('16 check 1');
@@ -337,8 +345,8 @@ console.log('16 check 1');
 console.log('16 check 1.5');
         nummer = await anzeigeNummer.getProperty('textContent');
         anzeigen = await nummer.jsonValue();
-        anzeigen = parseInt(anzeigen.substr(1, 2)); 
-        console.log(year, 'Total:', anzeigen); // need it here
+        anzeigen = parseInt(anzeigen.substr(1, 3));
+        console.log('Total:', anzeigen); // need it here
         worksheet = workbook.addWorksheet('2019 16 Pro');
         if (isNaN(anzeigen) ? worksheet.cell(1, 8).number(0) : worksheet.cell(1, 10).string('Total: ' + anzeigen));
 
