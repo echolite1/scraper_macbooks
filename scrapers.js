@@ -135,11 +135,11 @@ async function scrapeMacs(){
             try{
                 var counter = 1;
                 var macModel = [
-                    '?f_prop_season=' + year,
-                    '-pro/15?f_prop_season=' + year,
-                    '-pro/13?f_prop_season=' + year,
-                    '-air/13?f_prop_season=' + year,
-                    '-pro/14'
+                    '?f_prop_season=' + year + '&page=' + 1,
+                    '-pro/15?f_prop_season=' + year + '&page=' + 1,
+                    '-pro/13?f_prop_season=' + year + '&page=' + 1,
+                    '-air/13?f_prop_season=' + year + '&page=' + 1,
+                    '-pro/14&page=' + 1
                 ];                                      // -pro/14?f_prop_season= 2021 &page=1
                 var link = constantLink + macModel[modelSwitcher]; // '&page' + pageNumber
 
@@ -157,7 +157,7 @@ async function scrapeMacs(){
                         break;
                     case 1: // 15 inch
                         if(link.search('2020') != -1 || link.search('2015') != -1 || link.search('2021') != -1){
-                            console.log('2015/-20 15 inch -');//, link);
+                            console.log('2015/20/21 15 inch -');//, link);
                             // year++;
                             // link = constantLink + macModel[modelSwitcher];
                             // await page.goto(link);
@@ -168,7 +168,7 @@ async function scrapeMacs(){
                         break;
                     case 2: // 13 inch
                         if(link.search('2015') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
-                            console.log('2015 13 inch -');//, link);
+                            console.log('2015/21 13 inch -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 13 Pro');
@@ -176,14 +176,14 @@ async function scrapeMacs(){
                         break;
                     case 3: // Air
                         if(link.search('2016') != -1 || link.search('2017') != -1 || link.search('2021') != -1){
-                            console.log('2016-17 Air -');//, link);
+                            console.log('2016-17/21 Air -');//, link);
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' Air');
                         }
                         break;
                     case 4: // 14 inch
-                        if(link.search('2019') != -1 || link.search('2020') != -1){
+                        if(link.search('2018') != -1 || link.search('2019') != -1 || link.search('2020') != -1){
                             console.log('14 2019-20 -');
                         }
                         else{
@@ -218,7 +218,7 @@ async function scrapeMacs(){
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
                 
-                for( ; counter < 2; counter++){//anzeigen + 1; counter++){ // here you can limit number of anzeigen
+                for( ; counter < anzeigen + 1; counter++){//anzeigen + 1; counter++){ // here you can limit number of anzeigen
                     // check if it is 'Kein Ankauf'
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + counter + ']/a/div/div[4]/button/ng-switch/span');
                     btnTxt = await mainPageButton.getProperty('textContent');
