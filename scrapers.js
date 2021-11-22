@@ -123,25 +123,26 @@ function setupPrices(priceWN, anzeigeCounter){
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 9).number(0) : worksheet.cell(anzeigeCounter + 1, 9).number(parseInt(priceWN * 0.818)));
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 10).number(0) : worksheet.cell(anzeigeCounter + 1, 10).number(parseInt(priceWN - ((priceWN * 0.908 + priceWN * 0.818)/2))));
 }
+
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
 async function scrapeMacs(){
+    
     // launching pseudo-browser
     const browser = await puppeteer.launch();//{headless: false, slowMo: 100}); // [_][_][_][_][_][_][_][_]
     const page = await browser.newPage();
     console.clear();
 
-    while (modelSwitcher < 5){                                    //default from 1 < 3       // пока что 12 и Эир не нужны
+    while (modelSwitcher < 3){                                    //default from 1 < 3       // пока что 12 и Эир не нужны
         while(year < maxYear){
-            try{
+            try {
                 var anzeigeCounter = 1;
                 var macModel = [
                     '?f_prop_season=' + year + '&page=' + 1,
                     '-pro/15?f_prop_season=' + year + '&page=' + 1,
                     '-pro/13?f_prop_season=' + year + '&page=' + 1,
-                    '-air/13?f_prop_season=' + year + '&page=' + 1,
-                    '-pro/14&page=' + 1
-                ];                                      // -pro/14?f_prop_season= 2021 &page=1
-                var link = constantLink + macModel[modelSwitcher]; // '&page' + pageNumber
+                    '-air/13?f_prop_season=' + year + '&page=' + 1
+                ];
+                var link = constantLink + macModel[modelSwitcher];
 
                 await page.goto(link);
 
@@ -218,7 +219,7 @@ async function scrapeMacs(){
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
                 
-                for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){ // here you can limit number of anzeigen
+                for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){ // here you can limit number of anzeigen 'for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
                     // if (anzeigeCounter == 1){page = 2} // не знаю начнет ли оно с 25 или с 1 заново
                     // check if it is 'Kein Ankauf'
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
@@ -464,13 +465,151 @@ console.log('16 check 4');
         console.log('16 Pro - issue in loop');
     }
     //        16 ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
-    workbook.write(today + '.xlsx');        // create output folder
-    console.log('\n--- file created ---\n');
-    browser.close();
+    function finish() {
+        workbook.write(today + '.xlsx'); // create output folder
+        console.log('\n--- file created ---\n');
+        browser.close();
+    }
+    finish();
 }
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
 scrapeMacs();
 
+/* // 14 inch
+        var anzeigeCounter = 1;
+    var link = constantLink + '-pro/16';
+    try {
+        await page.goto(link); //https://www.rebuy.de/verkaufen/notebooks/apple/macbook-pro/14?page=1
+        await delay(defaultTime);//test OCT
+        
+console.log('16 check 1');
+
+        // проверять что вообще оно собирается выполнять if (все исключения)
+
+        // check the number of the results
+        [anzeigeNummer] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/h2/span[2]');
+console.log('16 check 1.5');
+        nummer = await anzeigeNummer.getProperty('textContent');
+        anzeigen = await nummer.jsonValue();
+        anzeigen = parseInt(anzeigen.substr(1, 3));
+        console.log('Total:', anzeigen); // need it here
+        worksheet = workbook.addWorksheet('2019 16 Pro');
+        if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
+
+        // giving styles to sheet
+        worksheet.column(1).setWidth(12);
+        worksheet.column(2).setWidth(8);
+        var titleanzeigeCounter = 1;
+        while(titleanzeigeCounter <= titles.length){
+            worksheet.cell(1, titleanzeigeCounter).string(titles[titleanzeigeCounter - 1]).style(title);
+            titleanzeigeCounter++;
+        }
+console.log('16 check 2');
+
+        for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
+            // check if it is 'Kein Ankauf'
+            [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
+            btnTxt = await mainPageButton.getProperty('textContent');
+            btnTxtKA = await btnTxt.jsonValue();
+
+            if(btnTxtKA != 'Kein Ankauf')
+            {
+                // getting model text (DO NOT PRINT in the console)
+                [modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
+                label = await modelText.getProperty('textContent');
+                model = await label.jsonValue();
+                model = model.substr(model.search('G') - 4, 150);
+console.log('16 check 3');
+
+                // making Processor text look nice
+                processor = model.substr(model.search('G') - 4, 22);
+                if(processor.search('Chip') == -1){
+                    processor = processor.replace('Intel Core ', '');
+                    // if(processor.search(')') != -1){
+                    //     processor = processor.replace(')', '');    // not now
+                    // }
+                }
+                // making RAM text look nice
+                RAM = parseInt(model.substr(model.search('RAM') - 6, 2));
+                // making SSD text look nice
+                if(model.search('PCIe') != -1){
+                    if(model.search('TB') != -1){
+                        SSD   = model.substr(model.search('TB') - 2, 4);
+                    }
+                    else{
+                        SSD = model.substr(model.search('SSD') - 12, 6);
+                    } 
+                }
+                else{
+                    if(model.search('TB') != -1){
+                        SSD   = model.substr(model.search('TB') - 2, 4);
+                    }
+                    else{
+                        SSD = model.substr(model.search('SSD') - 7, 6);
+                    }
+                }
+
+                // excel styles
+                excelStyles(anzeigeCounter);
+
+                // pressing verkaufen button
+                [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
+                await mainPageButton.evaluate( mainPageButton => mainPageButton.click() );
+                await delay(defaultTime); // it is necessary
+console.log('16 check 4');
+                // doing Zustand WieNeu survey
+                var questionDiv = 1;
+                for( ; questionDiv < 5; questionDiv++){
+                    [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    await survey.evaluate( survey => survey.click() ); //await delay(defaultTime); // not necessary
+                }
+
+                // getting the price value
+                await delay(defaultTime * 1.5); // it is necessary       --------------
+                [bestPrice] = await page.$x('//*[@id="grading-form"]/div[2]/ry-grading-info/div/div[2]/div[1]/div[2]/div[1]/p/span');
+                value = await bestPrice.getProperty('textContent');
+                priceWN = await value.jsonValue();
+                priceWN = parseInt(priceWN);
+                
+                await page.goto(link);
+                await delay(defaultTime);//test OCT
+                
+                //write to xlsx
+                worksheet.cell(anzeigeCounter + 1, 1).string(processor);
+                worksheet.cell(anzeigeCounter + 1, 2).number(RAM);
+                worksheet.cell(anzeigeCounter + 1, 3).string(SSD);
+
+                if (model.search(color[0]) != -1){
+                    worksheet.cell(anzeigeCounter + 1, 4).string(color[0]);
+                } 
+                if (model.search(color[1]) != -1){
+                    worksheet.cell(anzeigeCounter + 1, 4).string(color[1]);
+                }
+                if (model.search(color[2]) != -1){
+                    worksheet.cell(anzeigeCounter + 1, 4).string(color[2]);
+                }
+                if (model.search(color[3]) != -1){
+                    worksheet.cell(anzeigeCounter + 1, 4).string(color[3]);
+                }
+
+                if (model.search(qwerty) != -1){
+                    worksheet.cell(anzeigeCounter + 1, 5).string(qwerty);
+                }
+
+                setupPrices(priceWN, anzeigeCounter);
+                
+                console.log(anzeigeCounter, 'done');
+            }
+            else {
+                console.log(anzeigeCounter, 'KA');
+            }
+        }
+    } 
+    catch {
+        console.log('16 Pro - issue in loop');
+    }
+*/
+
+
 //TODO:
-// 12 inch что-то про модель после свитча (как если сделать 2020 на 15 дюймов)
 // Починить ошибку 500 (catch) и специфик модел (красная надпись на сайте)
