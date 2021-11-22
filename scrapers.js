@@ -349,7 +349,7 @@ console.log('16 check 1.5');
         anzeigen = parseInt(anzeigen.substr(1, 3));
         console.log('Total:', anzeigen); // need it here
         worksheet = workbook.addWorksheet('2019 16 Pro');
-        if (isNaN(anzeigen) ? worksheet.cell(1, 8).number(0) : worksheet.cell(1, 10).string('Total: ' + anzeigen));
+        if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
 
         // giving styles to sheet
         worksheet.column(1).setWidth(12);
