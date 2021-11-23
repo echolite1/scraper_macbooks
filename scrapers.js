@@ -137,10 +137,10 @@ async function scrapeMacs(){
             try {
                 var anzeigeCounter = 1;
                 var macModel = [
-                    '?f_prop_season=' + year + '&page=' + 1,
-                    '-pro/15?f_prop_season=' + year + '&page=' + 1,
-                    '-pro/13?f_prop_season=' + year + '&page=' + 1,
-                    '-air/13?f_prop_season=' + year + '&page=' + 1
+                    '?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-pro/15?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-pro/13?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-air/13?f_prop_season=' + year + '&page=' + pageNumber
                 ];
                 var link = constantLink + macModel[modelSwitcher];
 
@@ -218,6 +218,7 @@ async function scrapeMacs(){
 
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
+                //worksheetCounter = 1;
                 
                 for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){ // here you can limit number of anzeigen 'for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
                     // if (anzeigeCounter == 1){page = 2} // не знаю начнет ли оно с 25 или с 1 заново
@@ -316,11 +317,19 @@ async function scrapeMacs(){
                         else {
                             console.log(anzeigeCounter, 'KA');
                         }
+                        //worksheetCounter++;
                     }
                     catch{
                         console.log('specific mac failed');
                     }
-                    
+                    pageNumber++;
+                    console.log(pageNumber);
+                    // if (anzeigeCounter == 24 && link == 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/13?f_prop_season=2020&page=1'){
+                    //     link = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/13?f_prop_season=2020&page=2';
+                    //     console.log(link);
+                    //     await page.goto(link);
+                    //     anzeigeCounter = 0;
+                    // }
                 }
             } 
             catch{
