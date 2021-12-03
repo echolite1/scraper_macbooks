@@ -146,19 +146,13 @@ async function pro13(){
             worksheet.cell(1, titleanzeigeCounter).string(titles[titleanzeigeCounter - 1]).style(title);
             titleanzeigeCounter++;
         }
-
-        // проверять что вообще оно собирается выполнять if (все исключения)
-
+        
         // check the number of the results
         [anzeigeNummer] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/h2/span[2]');
         nummer = await anzeigeNummer.getProperty('textContent');
         anzeigen = await nummer.jsonValue();
         anzeigen = parseInt(anzeigen.substr(1, 2));             // here we understand how much available
-        console.log(year, 'Total:', anzeigen); // need it here
-
-        // if (anzeigen > 24){
-        //      link = link + '&page' + pageNumber          // could be implemented in the future
-        // }
+        console.log(year, 'Total:', anzeigen);
 
         if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
         if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));

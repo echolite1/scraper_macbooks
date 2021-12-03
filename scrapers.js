@@ -15,9 +15,9 @@ today = dd + '-' + mm + '-' + yyyy;
 // input startYear
 var year = prompt('Start scan from which Year? -> ');
 var inputYear = year;
-if (inputYear < 2015 || year < 2015){
-    inputYear = 2015;
-    year = 2015;
+if (inputYear < 2018 || year < 2018){
+    inputYear = 2018;
+    year = 2018;
 }
 
 // main variables
@@ -25,7 +25,7 @@ const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';  
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
 var pageNumber = 1;
 var maxYear = yyyy;               // < yyyy == < 2021 == 2020 the last one
-var defaultTime = 550;              // 550 w/o doubler // until 14.09 == 750
+var defaultTime = 750;              // 550 w/o doubler // until 14.09 == 750
 
 // variables for excel
 const qwerty = 'QWERTY';
@@ -105,6 +105,11 @@ const bgGreen = workbook.createStyle({
         fgColor: '#edf0eb',
     }
 });
+function formatTables() {
+    worksheet.column(1).setWidth(12);
+    worksheet.column(2).setWidth(8);
+    worksheet.column(7).setWidth(9);
+}
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
 function delay(time) {
     return new Promise(function(resolve) { setTimeout(resolve, time) });
@@ -136,27 +141,6 @@ async function scrapeMacs(){
         while(year < maxYear){
             try {
                 var anzeigeCounter = 1;     // 100% можно переместить свитч
-                if (modelSwitcher == 2) { // не переписываю ли я свитч, попробовать перенести сюда свитч и запихнуть замену года в него
-                    console.log('mS=2 ');
-                    if(year == 2017 || year == 2018 || year == 2019){
-                        year = 2020;
-                        console.log(year);
-                    }
-                } else if(modelSwitcher == 1){
-                    console.log('mS=1 ');
-                    if(year == 2017){
-                        year++;
-                        console.log(year);
-                    }
-                }
-                var macModel = [
-                    '?f_prop_season=' + year + '&page=' + pageNumber,
-                    '-pro/15?f_prop_season=' + year + '&page=' + pageNumber,
-                    '-pro/13?f_prop_season=' + year + '&page=' + pageNumber,
-                    '-air/13?f_prop_season=' + year + '&page=' + pageNumber
-                ];
-                var link = constantLink + macModel[modelSwitcher];
-                await page.goto(link);
 
                 // ignore creating of non-existing models and creating worksheets
                 switch(modelSwitcher){
@@ -169,46 +153,48 @@ async function scrapeMacs(){
                         }
                         break;
                     case 1: // 15 inch
-                        if(link.search('2020') != -1 || link.search('2015') != -1 || link.search('2021') != -1){
-                            console.log('2015/20/21 15 inch -');//, link);
-                            // year++;
-                            // link = constantLink + macModel[modelSwitcher];
-                            // await page.goto(link);
+                        if(year < 2018){
+                            console.log('-- wrong 15 inch --');
+                            year++;
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 15 Pro');
                         }
                         break;
                     case 2: // 13 inch
-                        if(link.search('2015') != -1 || link.search('2021') != -1){ // if(link.search('2015') != -1 || link.search('2016') != -1 || link.search('2017') != -1){ 
-                            console.log('2015/21 13 inch -');//, link);
+                        if(year < 2020){ 
+                            console.log('-- wrong 13 inch --');
+                            year = 2020;
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' 13 Pro');
                         }
                         break;
                     case 3: // Air
-                        if(link.search('2016') != -1 || link.search('2017') != -1 || link.search('2021') != -1){
-                            console.log('2016-17/21 Air -');//, link);
+                        if(year < 2020){
+                            console.log('-- wrong Air --');
+                            year = 2020;
                         }
                         else{
                             worksheet = workbook.addWorksheet(year + ' Air');
                         }
                         break;
-                    case 4: // 14 inch
-                        if(link.search('2018') != -1 || link.search('2019') != -1 || link.search('2020') != -1){
-                            console.log('14 2019-20 -');
-                        }
-                        else{
-                            worksheet = workbook.addWorksheet(year + ' 14 Pro');
-                        }
-                        break;
                     default:
                         console.log('modelSwitcher error');
                 }
-                worksheet.column(1).setWidth(12);
-                worksheet.column(2).setWidth(8);
-                worksheet.column(7).setWidth(9);
+
+                var macModel = [
+                    '?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-pro/15?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-pro/13?f_prop_season=' + year + '&page=' + pageNumber,
+                    '-air/13?f_prop_season=' + year + '&page=' + pageNumber
+                ];
+                var link = constantLink + macModel[modelSwitcher];
+                await page.goto(link);
+
+                // make tables look better
+                formatTables();
+
                 var titleanzeigeCounter = 1;
                 while(titleanzeigeCounter <= titles.length){
                     worksheet.cell(1, titleanzeigeCounter).string(titles[titleanzeigeCounter - 1]).style(title);
@@ -351,7 +337,7 @@ async function scrapeMacs(){
     var anzeigeCounter = 1;
     var link = constantLink + '-pro/16?f_prop_season=2019&page=1';
     try {
-        await page.goto(link); //https://www.rebuy.de/verkaufen/notebooks/apple/macbook-pro/16
+        await page.goto(link);
         await delay(defaultTime);//test OCT
         
 console.log('16 check 1');
@@ -397,9 +383,6 @@ console.log('16 check 3');
                 processor = model.substr(model.search('G') - 4, 22);
                 if(processor.search('Chip') == -1){
                     processor = processor.replace('Intel Core ', '');
-                    // if(processor.search(')') != -1){
-                    //     processor = processor.replace(')', '');    // not now
-                    // }
                 }
                 // making RAM text look nice
                 RAM = parseInt(model.substr(model.search('RAM') - 6, 2));
@@ -490,6 +473,22 @@ console.log('16 check 4');
 }
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
 scrapeMacs();
+
+
+
+                // if (modelSwitcher == 2) { // не переписываю ли я свитч, попробовать перенести сюда свитч и запихнуть замену года в него
+                //     console.log('mS=2 ');
+                //     if(year == 2017 || year == 2018 || year == 2019){
+                //         year = 2020;
+                //         console.log(year);
+                //     }
+                // } else if(modelSwitcher == 1){
+                //     console.log('mS=1 ');
+                //     if(year == 2017){
+                //         year++;
+                //         console.log(year);
+                //     }
+                // }
 
 /* // 14 inch
         var anzeigeCounter = 1;
