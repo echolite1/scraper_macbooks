@@ -24,8 +24,8 @@ if (inputYear < 2015 || year < 2015){
 const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';          // https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
 var pageNumber = 1;
-var maxYear = yyyy+1;               // < yyyy == < 2021 == 2020 the last one
-var defaultTime = 850;              // 550 w/o doubler // until 14.09 == 750
+var maxYear = yyyy;               // < yyyy == < 2021 == 2020 the last one
+var defaultTime = 550;              // 550 w/o doubler // until 14.09 == 750
 
 // variables for excel
 const qwerty = 'QWERTY';
@@ -128,14 +128,27 @@ function setupPrices(priceWN, anzeigeCounter){
 async function scrapeMacs(){
     
     // launching pseudo-browser
-    const browser = await puppeteer.launch();//{headless: false, slowMo: 100}); // [_][_][_][_][_][_][_][_]
+    const browser = await puppeteer.launch();//{headless: false, slowMo: 450}); // [_][_][_][_][_][_][_][_]
     const page = await browser.newPage();
     console.clear();
 
     while (modelSwitcher < 3){                                    //default from 1 < 3       // пока что 12 и Эир не нужны
         while(year < maxYear){
             try {
-                var anzeigeCounter = 1;
+                var anzeigeCounter = 1;     // 100% можно переместить свитч
+                if (modelSwitcher == 2) { // не переписываю ли я свитч, попробовать перенести сюда свитч и запихнуть замену года в него
+                    console.log('mS=2 ');
+                    if(year == 2017 || year == 2018 || year == 2019){
+                        year = 2020;
+                        console.log(year);
+                    }
+                } else if(modelSwitcher == 1){
+                    console.log('mS=1 ');
+                    if(year == 2017){
+                        year++;
+                        console.log(year);
+                    }
+                }
                 var macModel = [
                     '?f_prop_season=' + year + '&page=' + pageNumber,
                     '-pro/15?f_prop_season=' + year + '&page=' + pageNumber,
@@ -143,7 +156,6 @@ async function scrapeMacs(){
                     '-air/13?f_prop_season=' + year + '&page=' + pageNumber
                 ];
                 var link = constantLink + macModel[modelSwitcher];
-
                 await page.goto(link);
 
                 // ignore creating of non-existing models and creating worksheets
@@ -212,16 +224,11 @@ async function scrapeMacs(){
                 anzeigen = parseInt(anzeigen.substr(1, 2));             // here we understand how much available
                 console.log(macModel[modelSwitcher], year, 'Total:', anzeigen); // need it here
 
-                // if (anzeigen > 24){
-                //      link = link + '&page' + pageNumber          // could be implemented in the future
-                // }
-
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
                 //worksheetCounter = 1;
                 
                 for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){ // here you can limit number of anzeigen 'for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
-                    // if (anzeigeCounter == 1){page = 2} // не знаю начнет ли оно с 25 или с 1 заново
                     // check if it is 'Kein Ankauf'
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
                     btnTxt = await mainPageButton.getProperty('textContent');
@@ -322,8 +329,8 @@ async function scrapeMacs(){
                     catch{
                         console.log('specific mac failed');
                     }
-                    pageNumber++;
-                    console.log(pageNumber);
+                    // pageNumber++;
+                    // console.log(pageNumber);
                     // if (anzeigeCounter == 24 && link == 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/13?f_prop_season=2020&page=1'){
                     //     link = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/13?f_prop_season=2020&page=2';
                     //     console.log(link);
@@ -342,7 +349,7 @@ async function scrapeMacs(){
     }
     //        16 ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
     var anzeigeCounter = 1;
-    var link = constantLink + '-pro/16';
+    var link = constantLink + '-pro/16?f_prop_season=2019&page=1';
     try {
         await page.goto(link); //https://www.rebuy.de/verkaufen/notebooks/apple/macbook-pro/16
         await delay(defaultTime);//test OCT
@@ -371,7 +378,7 @@ console.log('16 check 1.5');
         }
 console.log('16 check 2');
 
-        for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
+        for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){  //  for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
             // check if it is 'Kein Ankauf'
             [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
             btnTxt = await mainPageButton.getProperty('textContent');
