@@ -23,7 +23,7 @@ if (inputYear < 2018 || year < 2018){
 // main variables
 const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';          // https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
-var pageNumber = 1;
+//var pageNumber = 1;
 var maxYear = yyyy;               // < yyyy == < 2021 == 2020 the last one
 var defaultTime = 850;              // 550 w/o doubler // until 14.09 == 750
 
@@ -135,14 +135,24 @@ async function scrapeMacs(){
     const browser = await puppeteer.launch();//{headless: false, slowMo: 450}); // [_][_][_][_][_][_][_][_]
     const page = await browser.newPage();
     console.clear();
+    console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
 
     var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await oldMacs();
-    //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await old16();
+    var answer = prompt('Proceed to old 16 inch? -> ');
+    if(answer == 1 || answer == 'y'){
+        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await old16();
+    }
+    else {
+        console.log('old 16 inch ignored')
+    }
+
+    
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new16();
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new14();
 
     async function oldMacs() {
-        while (modelSwitcher < 3) { //default from 1 < 3       // пока что 12 и Эир не нужны
+        var pageNumber = 1;
+        while (modelSwitcher < 2) { //default from 1 < 3       // пока что 12 и Эир не нужны // вместо цифры вставить ответ от что сканить
             while (year < maxYear) {
                 try {
                     var anzeigeCounter = 1; // 100% можно переместить свитч
@@ -465,9 +475,10 @@ async function scrapeMacs(){
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
 
-    async function new16() {
+    async function new16() {            // need to consider cores and page counter does not work
+        var pageNumber = 1;
         var anzeigeCounter = 1;
-        var link = constantLink + '-pro/16?f_prop_season=2019&page=1';
+        var link = constantLink + '-pro/16?f_prop_season=2021&page=1';
         try {
             await page.goto(link);
             await delay(defaultTime); //test OCT
@@ -478,7 +489,7 @@ async function scrapeMacs(){
             anzeigen = await nummer.jsonValue();
             anzeigen = parseInt(anzeigen.substr(1, 3));
             console.log('Total:', anzeigen); // need it here
-            worksheet = workbook.addWorksheet('2019 16 Pro');
+            worksheet = workbook.addWorksheet('2021 16 Pro');
             if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
 
             // giving styles to sheet
@@ -586,29 +597,34 @@ async function scrapeMacs(){
             }
         }
         catch {
-            console.log('16 Pro - issue');
+            console.log('new 16 Pro - issue');
+        }
+        if (anzeigeCounter == 24) {
+            link = link.replace('e=' + pageNumber, 'e=' + ++pageNumber);
+
+            await page.goto(link);
+
+            anzeigeCounter = 0;
         }
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
 
-    async function new14() {
+    async function new14() {            // need to consider cores and page counter does not work
+        var pageNumber = 1;
         var anzeigeCounter = 1;
-        var link = constantLink + '-pro/16';
+        var link = constantLink + '-pro/14?page=1';
         try {
             await page.goto(link); //https://www.rebuy.de/verkaufen/notebooks/apple/macbook-pro/14?page=1
             await delay(defaultTime); //test OCT
 
-            console.log('16 check 1');
-
             // проверять что вообще оно собирается выполнять if (все исключения)
             // check the number of the results
             [anzeigeNummer] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/h2/span[2]');
-            console.log('16 check 1.5');
             nummer = await anzeigeNummer.getProperty('textContent');
             anzeigen = await nummer.jsonValue();
             anzeigen = parseInt(anzeigen.substr(1, 3));
             console.log('Total:', anzeigen); // need it here
-            worksheet = workbook.addWorksheet('2019 16 Pro');
+            worksheet = workbook.addWorksheet('2021 14 Pro');
             if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen))
                 ;
 
@@ -620,7 +636,6 @@ async function scrapeMacs(){
                 worksheet.cell(1, titleanzeigeCounter).string(titles[titleanzeigeCounter - 1]).style(title);
                 titleanzeigeCounter++;
             }
-            console.log('16 check 2');
 
             for (; anzeigeCounter < anzeigen + 1; anzeigeCounter++) {
                 // check if it is 'Kein Ankauf'
@@ -634,7 +649,6 @@ async function scrapeMacs(){
                     label = await modelText.getProperty('textContent');
                     model = await label.jsonValue();
                     model = model.substr(model.search('G') - 4, 150);
-                    console.log('16 check 3');
 
                     // making Processor text look nice
                     processor = model.substr(model.search('G') - 4, 22);
@@ -671,7 +685,6 @@ async function scrapeMacs(){
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
-                    console.log('16 check 4');
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
                     for (; questionDiv < 5; questionDiv++) {
@@ -722,7 +735,14 @@ async function scrapeMacs(){
             }
         }
         catch {
-            console.log('16 Pro - issue in loop');
+            console.log('14 Pro - issue in loop');
+        }
+        if (anzeigeCounter == 24) {
+            link = link.replace('e=' + pageNumber, 'e=' + ++pageNumber);
+
+            await page.goto(link);
+
+            anzeigeCounter = 0;
         }
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
