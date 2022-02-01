@@ -139,23 +139,22 @@ async function scrapeMacs(){
 
     var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await oldMacs();
     var answer = prompt('Proceed to old 16 inch? -> ');
-    if(answer == 1 || answer == 'y'){
+    if(answer == 1 || answer == 'y' || answer == 'Y'){
         var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await old16();
     }
     else {
         console.log('old 16 inch ignored')
-    }
-
-    
+    }    
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new16();
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new14();
 
     async function oldMacs() {
-        var pageNumber = 1;
+        // 31.01.2022 var pageNumber = 1;
         while (modelSwitcher < 2) { //default from 1 < 3       // пока что 12 и Эир не нужны // вместо цифры вставить ответ от что сканить
             while (year < maxYear) {
                 try {
                     var anzeigeCounter = 1; // 100% можно переместить свитч
+                    var pageNumber = 1;
 
                     // ignore creating of non-existing models and creating worksheets
                     switch (modelSwitcher) {
