@@ -137,20 +137,30 @@ async function scrapeMacs(){
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
 
+    // even if unblock 13 Pro - will not work, new 16 inch in beta
     var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await oldMacs();
+
     var answer = prompt('Proceed to old 16 inch? -> ');
     if(answer == 1 || answer == 'y' || answer == 'Y'){
         var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await old16();
     }
     else {
         console.log('old 16 inch ignored')
-    }    
-    //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new16();
+    }
+
+    answer = prompt('Proceed to new 16 inch? -> ');
+    if(answer == 1 || answer == 'y' || answer == 'Y'){
+        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new16();
+    }
+    else {
+        console.log('new 16 inch ignored')
+    }
+    
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new14();
 
     async function oldMacs() {
         // 31.01.2022 var pageNumber = 1;
-        while (modelSwitcher < 2) { //default from 1 < 3       // пока что 12 и Эир не нужны // вместо цифры вставить ответ от что сканить
+        while (modelSwitcher < 2) { //default from 1 < 3       // пока что 12 (0) и Эир (4) не нужны // вместо цифры вставить ответ от что сканить
             while (year < maxYear) {
                 try {
                     var anzeigeCounter = 1; // 100% можно переместить свитч
@@ -176,9 +186,9 @@ async function scrapeMacs(){
                             }
                             break;
                         case 2: // 13 inch
-                            if (year < 2020) {
+                            if (year < 2020 || year > 2020) {
                                 console.log('-- wrong 13 inch --');
-                                year = 2020;
+                                year++;
                                 worksheet = workbook.addWorksheet(year + ' 13 Pro');
                             }
                             else {
@@ -474,13 +484,14 @@ async function scrapeMacs(){
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
 
-    async function new16() {            // need to consider cores and page counter does not work
-        var pageNumber = 1;
+    async function new16() {            // page counter does not work, implemented new title parser
+        
         var anzeigeCounter = 1;
-        var link = constantLink + '-pro/16?f_prop_season=2021&page=1';
+        var link = constantLink + '-pro/16?f_prop_season=2021&page=' + pageNumber;
         try {
             await page.goto(link);
             await delay(defaultTime); //test OCT
+            var pageNumber = 1;
 
             // check the number of the results
             [anzeigeNummer] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/h2/span[2]');
@@ -514,10 +525,13 @@ async function scrapeMacs(){
                     model = model.substr(model.search('G') - 4, 150);
                     console.log('16 check 3');
 
-                    // making Processor text look nice
-                    processor = model.substr(model.search('G') - 4, 22);
-                    if (processor.search('Chip') == -1) {
-                        processor = processor.replace('Intel Core ', '');
+                    // making Processor text look nice// Apple MacBook Pro CTO mit Touch ID 16.2" (Liquid Retina XDR Display) 3.2 GHz M1 Max Chip (24-Core GPU) 32 GB RAM 4 TB SSD [Late 2021, englisches Tastaturlayout, QWERTY] space grau
+                    if (model.includes('Chip')) {
+                        //processor = processor.replace('Intel Core ', '');// wft kakoi intel core
+                        processor = model.substr(model.search('G') + 3, 26);
+                    }
+                    else{
+                        processor = model.substr(model.search('G') - 4, 22);
                     }
                     // making RAM text look nice
                     RAM = parseInt(model.substr(model.search('RAM') - 6, 2));
