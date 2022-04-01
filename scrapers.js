@@ -188,7 +188,8 @@ async function scrapeMacs(){
                         case 2: // 13 inch
                             if (year < 2020 || year > 2020) {
                                 console.log('-- wrong 13 inch --');
-                                year++;
+                                //year++; //01.04.2022
+                                year = 2020;
                                 worksheet = workbook.addWorksheet(year + ' 13 Pro');
                             }
                             else {
@@ -776,4 +777,7 @@ async function scrapeMacs(){
 scrapeMacs();
 
 //TODO:
+// if price == -,--
+// separate 13 and 15 inch
 // Починить ошибку 500 (catch)
+// ask API
