@@ -131,13 +131,11 @@ function setupPrices(priceWN, anzeigeCounter){
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
 async function scrapeMacs(){
     
-    // launching pseudo-browser
-    const browser = await puppeteer.launch();//{headless: false, slowMo: 450}); // [_][_][_][_][_][_][_][_] 
+    const browser = await puppeteer.launch();//{headless: false, slowMo: 250}); // [_][_][_][_][_][_][_][_] 
     const page = await browser.newPage();
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
 
-    // even if unblock 13 Pro - will not work, new 16 inch in beta
     var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await oldMacs();
 
     var answer = prompt('Proceed to old 16 inch? -> ');
@@ -302,6 +300,9 @@ async function scrapeMacs(){
                                 // getting the price value
                                 await delay(defaultTime * 1.5); // it is necessary       --------------
                                 [bestPrice] = await page.$x('//*[@id="grading-form"]/div[2]/ry-grading-info/div/div[2]/div[1]/div[2]/div[1]/p/span'); //try get price if 0 wait time
+                                // if(bestPrice.getProperty('textContent') != 0){
+                                //     // proceed
+                                // }
                                 value = await bestPrice.getProperty('textContent');
                                 priceWN = await value.jsonValue();
                                 priceWN = parseInt(priceWN);
@@ -354,7 +355,7 @@ async function scrapeMacs(){
                     }
                 }
                 catch {
-                    console.log('this model is not available');
+                    console.log('this model is not available or website is down');
                 }
                 year++;
             }
@@ -781,3 +782,5 @@ scrapeMacs();
 // separate 13 and 15 inch
 // Починить ошибку 500 (catch)
 // ask API
+// new 16
+// new 14
