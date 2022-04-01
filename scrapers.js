@@ -21,11 +21,11 @@ if (inputYear < 2018 || year < 2018){
 }
 
 // main variables
-const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';          // https://www.rebuy.de/verkaufen/apple/notebooks/macbook-pro/15?f_prop_season=2018
+const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';
 var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
 //var pageNumber = 1;
-var maxYear = yyyy;               // < yyyy == < 2021 == 2020 the last one
-var defaultTime = 850;              // 550 w/o doubler // until 14.09 == 750
+var maxYear = yyyy - 1;               // < yyyy == < 2021 == 2020 the last one | upd: 2022
+var defaultTime = 900;              // 550 w/o doubler // until 14.09 == 750
 
 // variables for excel
 const qwerty = 'QWERTY';
@@ -132,7 +132,7 @@ function setupPrices(priceWN, anzeigeCounter){
 async function scrapeMacs(){
     
     // launching pseudo-browser
-    const browser = await puppeteer.launch();//{headless: false, slowMo: 450}); // [_][_][_][_][_][_][_][_]
+    const browser = await puppeteer.launch();//{headless: false, slowMo: 450}); // [_][_][_][_][_][_][_][_] 
     const page = await browser.newPage();
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
@@ -160,7 +160,7 @@ async function scrapeMacs(){
 
     async function oldMacs() {
         // 31.01.2022 var pageNumber = 1;
-        while (modelSwitcher < 2) { //default from 1 < 3       // пока что 12 (0) и Эир (4) не нужны // вместо цифры вставить ответ от что сканить
+        while (modelSwitcher < 3) { //default from 1 < 3       // пока что 12 (0) и Эир (4) не нужны // вместо цифры вставить ответ от что сканить
             while (year < maxYear) {
                 try {
                     var anzeigeCounter = 1; // 100% можно переместить свитч
@@ -170,10 +170,10 @@ async function scrapeMacs(){
                     switch (modelSwitcher) {
                         case 0: // 12 inch
                             if (link.search('2018') != -1 || link.search('2019') != -1 || link.search('2020') != -1 || link.search('2021') != -1) {
-                                console.log('2018/-19/-20 12 inch -'); //, link);
+                                console.log('-- wrong 12 inch --');
                             }
                             else {
-                                worksheet = workbook.addWorksheet(year + ' 12 inch');
+                                console.log('-- wrong 12 inch --');
                             }
                             break;
                         case 1: // 15 inch
@@ -231,7 +231,7 @@ async function scrapeMacs(){
                     nummer = await anzeigeNummer.getProperty('textContent');
                     anzeigen = await nummer.jsonValue();
                     anzeigen = parseInt(anzeigen.substr(1, 2)); // here we understand how much available
-                    console.log(macModel[modelSwitcher], year, 'Total:', anzeigen); // need it here
+                    console.log(macModel[modelSwitcher], 'Total:', anzeigen); // need it here
 
                     if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                     if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
@@ -288,14 +288,19 @@ async function scrapeMacs(){
 
                                 // doing Zustand WieNeu survey
                                 var questionDiv = 1;
-                                for (; questionDiv < 5; questionDiv++) {
-                                    [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                                for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                                    if (questionDiv < 6){
+                                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                                    }
+                                    else{
+                                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                                    }
                                     await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                                 }
 
                                 // getting the price value
                                 await delay(defaultTime * 1.5); // it is necessary       --------------
-                                [bestPrice] = await page.$x('//*[@id="grading-form"]/div[2]/ry-grading-info/div/div[2]/div[1]/div[2]/div[1]/p/span');
+                                [bestPrice] = await page.$x('//*[@id="grading-form"]/div[2]/ry-grading-info/div/div[2]/div[1]/div[2]/div[1]/p/span'); //try get price if 0 wait time
                                 value = await bestPrice.getProperty('textContent');
                                 priceWN = await value.jsonValue();
                                 priceWN = parseInt(priceWN);
@@ -771,4 +776,4 @@ async function scrapeMacs(){
 scrapeMacs();
 
 //TODO:
-// Починить ошибку 500 (catch) и специфик модел (красная надпись на сайте)
+// Починить ошибку 500 (catch)
