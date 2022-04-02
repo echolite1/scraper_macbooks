@@ -437,10 +437,16 @@ async function scrapeMacs(){
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
                     console.log('16 check 4');
+
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 
@@ -568,10 +574,16 @@ async function scrapeMacs(){
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
                     console.log('16 check 4');
+                    
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 

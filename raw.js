@@ -127,16 +127,16 @@ function setupPrices(priceWN, anzeigeCounter){
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 9).number(0) : worksheet.cell(anzeigeCounter + 1, 9).number(parseInt(priceWN * 0.818)));
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 10).number(0) : worksheet.cell(anzeigeCounter + 1, 10).number(parseInt(priceWN - ((priceWN * 0.908 + priceWN * 0.818)/2))));
 }
-function proceedTo(idk){
+async function proceedTo(mac){
     var answer = prompt('Proceed to next? -> ');
     if(answer == 1 || answer == 'y' || answer == 'Y'){
-        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await idk;
+        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await mac();
     }
     else {
         console.log('ignored')
     }
 }
-function modelTextParse([inputModelText], worksheetCounter){
+async function modelTextParse([inputModelText], worksheetCounter){
     label = await inputModelText.getProperty('textContent');
     model = await label.jsonValue();
     model = model.substr(model.search('G') - 4, 150);
@@ -208,6 +208,7 @@ async function scrapeMacs(){
     +  (2020      Air)
     +   
     */
+    
     const browser = await puppeteer.launch();//{headless: false, slowMo: 250}); // [_][_][_][_][_][_][_][_] 
     const page = await browser.newPage();
     console.clear();
@@ -215,13 +216,9 @@ async function scrapeMacs(){
 
     //var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await new14();
 
-    proceedTo(old15());
+    proceedTo(old15);
 
-    proceedTo(old13());
-
-    proceedTo(old16());
-
-    proceedTo(new16());
+    proceedTo(old16);
 
     async function old15() {
         while (year < 2020) {
@@ -601,8 +598,13 @@ async function scrapeMacs(){
 
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 
@@ -710,8 +712,13 @@ async function scrapeMacs(){
                     console.log('16 check 4');
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 

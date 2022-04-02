@@ -127,18 +127,17 @@ function setupPrices(priceWN, anzeigeCounter){
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 9).number(0) : worksheet.cell(anzeigeCounter + 1, 9).number(parseInt(priceWN * 0.818)));
     if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 10).number(0) : worksheet.cell(anzeigeCounter + 1, 10).number(parseInt(priceWN - ((priceWN * 0.908 + priceWN * 0.818)/2))));
 }
-function proceedTo(idk){
+async function proceedTo(mac){
     var answer = prompt('Proceed to next? -> ');
     if(answer == 1 || answer == 'y' || answer == 'Y'){
-        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await idk;
+        var { anzeigeCounter, link, titleanzeigeCounter, questionDiv } = await mac();
     }
     else {
         console.log('ignored')
     }
 }
-function modelTextParse(alot){
-    [modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
-    label = await modelText.getProperty('textContent');
+async function modelTextParse([inputModelText], worksheetCounter){
+    label = await inputModelText.getProperty('textContent');
     model = await label.jsonValue();
     model = model.substr(model.search('G') - 4, 150);
 
@@ -169,7 +168,13 @@ function modelTextParse(alot){
             SSD = model.substr(model.search('SSD') - 7, 6);
         }
     }
-    // ============== this is colors ==== 
+
+    //write to xlsx
+    worksheet.cell(anzeigeCounter + 1, 1).string(processor);
+    worksheet.cell(anzeigeCounter + 1, 2).number(RAM);
+    worksheet.cell(anzeigeCounter + 1, 3).string(SSD);
+
+    // ============== this is colors ==== (looks like no need to return)
     if (model.search(color[0]) != -1) {
         worksheet.cell(worksheetCounter + 1, 4).string(color[0]);
     }
@@ -186,7 +191,9 @@ function modelTextParse(alot){
         worksheet.cell(worksheetCounter + 1, 4).string(color[1]);
     }
 
-    if (model.search(qwerty) != -1) { worksheet.cell(worksheetCounter + 1, 5).string(qwerty); }
+    if (model.search(qwerty) != -1) { worksheet.cell(worksheetCounter + 1, 5).string(qwerty); } // no need to return
+
+    //return processor, RAM, SSD; //если мы и так пишем это в эксель то зачем ретюрн
 }
 
 //        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
@@ -202,7 +209,7 @@ async function scrapeMacs(){
     +  (2020      Air)
     */
     
-    const browser = await puppeteer.launch();//{headless: false, slowMo: 250}); // [_][_][_][_][_][_][_][_] 
+    const browser = await puppeteer.launch();//{headless: false, slowMo: 250}); // [_][_][_][_][_][_][_][_] );//
     const page = await browser.newPage();
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
@@ -240,23 +247,17 @@ async function scrapeMacs(){
     else {
         console.log('new 16 inch ignored')
     }
-
+    
     async function old15() {
         while (year < 2020) {
             try {
                 var anzeigeCounter = 1; // 100% можно переместить свитч idk what I meant
                 var pageNumber = 1;
 
-                if (year > 2019) { // this is impossible
-                    console.log('-- wrong 15 inch --');
-                    break;
-                }
-                else {
-                    worksheet = workbook.addWorksheet(year + ' 15 Pro');
-                }
-
                 var link = constantLink + '-pro/15?f_prop_season=' + year + '&page=' + pageNumber;
                 await page.goto(link);
+                await delay(defaultTime);
+                worksheet = workbook.addWorksheet(year + ' 15 Pro');
 
                 // make tables look better
                 formatTables();
@@ -272,7 +273,7 @@ async function scrapeMacs(){
                 nummer = await anzeigeNummer.getProperty('textContent');
                 anzeigen = await nummer.jsonValue();
                 anzeigen = parseInt(anzeigen.substr(1, 2)); // here we understand how much available
-                console.log(macModel[modelSwitcher], 'Total:', anzeigen); // need it here
+                console.log(year, 'Total:', anzeigen); // need it here
 
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
@@ -403,7 +404,7 @@ async function scrapeMacs(){
         }
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
-
+    
     async function old13() {
         year = 2020;
         while (year < 2021) {
@@ -411,13 +412,7 @@ async function scrapeMacs(){
                 var anzeigeCounter = 1; // 100% можно переместить свитч idk what I meant
                 var pageNumber = 1;
 
-                if (year > 2020) { // this is impossible
-                    console.log('-- wrong 13 inch --');
-                    break;
-                }
-                else {
-                    worksheet = workbook.addWorksheet(year + ' 13 Pro');
-                }
+                worksheet = workbook.addWorksheet(year + ' 13 Pro');
 
                 var link = constantLink + '-pro/13?f_prop_season=' + year + '&page=' + pageNumber;
                 await page.goto(link);
@@ -436,7 +431,7 @@ async function scrapeMacs(){
                 nummer = await anzeigeNummer.getProperty('textContent');
                 anzeigen = await nummer.jsonValue();
                 anzeigen = parseInt(anzeigen.substr(1, 2)); // here we understand how much available
-                console.log(macModel[modelSwitcher], 'Total:', anzeigen); // need it here
+                console.log(year, 'Total:', anzeigen); // need it here
 
                 if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
                 if (anzeigen > 24 ? anzeigen = 24 : console.log(anzeigen));
@@ -567,9 +562,8 @@ async function scrapeMacs(){
         }
         return { anzeigeCounter, link, titleanzeigeCounter, questionDiv };
     }
-
+    // works magically
     async function old16() {
-        
         var link = constantLink + '-pro/16?f_prop_season=2019&page=1';
         try {
             var anzeigeCounter = 1;
@@ -586,9 +580,9 @@ async function scrapeMacs(){
             worksheet = workbook.addWorksheet('2019 16 Pro');
             if (isNaN(anzeigen) ? worksheet.cell(1, 12).string('unknown amount') : worksheet.cell(1, 12).string('Total: ' + anzeigen));
 
-            // giving styles to sheet
-            worksheet.column(1).setWidth(12);
-            worksheet.column(2).setWidth(8);
+            // make tables look better
+            formatTables();
+
             var titleanzeigeCounter = 1;
             while (titleanzeigeCounter <= titles.length) {
                 worksheet.cell(1, titleanzeigeCounter).string(titles[titleanzeigeCounter - 1]).style(title);
@@ -641,11 +635,16 @@ async function scrapeMacs(){
                     [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span');
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
-                    console.log('16 check 4');
+                    
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 
@@ -657,7 +656,7 @@ async function scrapeMacs(){
                     priceWN = parseInt(priceWN);
 
                     await page.goto(link);
-                    await delay(defaultTime); //test OCT
+                    //wait delay(defaultTime); //test OCT
 
                     //write to xlsx
                     worksheet.cell(anzeigeCounter + 1, 1).string(processor);
@@ -773,10 +772,16 @@ async function scrapeMacs(){
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
                     console.log('16 check 4');
+
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
-                    for (; questionDiv < 5; questionDiv++) {
-                        [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                    for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                        if (questionDiv < 6){
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
+                        }
+                        else{
+                            [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div/label');
+                        }
                         await survey.evaluate(survey => survey.click()); //await delay(defaultTime); // not necessary
                     }
 
@@ -984,5 +989,6 @@ scrapeMacs();
 
 //TODO:
 // Починить ошибку 500 (catch)
+// why old15 and old 16 are so different
 // new 16
 // new 14
