@@ -1,24 +1,12 @@
 const puppeteer = require('puppeteer');
 const excel = require('excel4node');
 const prompt = require('prompt-sync')();
-
 // creating date
 var today = new Date();
 var dd = String(today.getDate()).padStart(2, '0');
 var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
 var yyyy = today.getFullYear();
 today = dd + '-' + mm + '-' + yyyy;
-
-// // input startYear
-// var year = prompt('Start scan from which Year? -> ');
-// var inputYear = year;
-// if (inputYear < 2018 || year < 2018){
-//     inputYear = 2018;
-//     year = 2018;
-// }
-// var modelSwitcher = 1;                     // default  == 1 // make 0 for 12"
-// var maxYear = yyyy - 1;               // < yyyy == < 2021 == 2020 the last one | upd: 2022
-
 // main variables
 const constantLink = 'https://www.rebuy.de/verkaufen/apple/notebooks/macbook';
 var workbook = new excel.Workbook();
@@ -132,8 +120,8 @@ async function launcher(call) {
         console.log('this model ignored');
     }
 }
-async function modelTextParse([inputModelText], worksheetCounter){
-    label = await inputModelText.getProperty('textContent');
+async function parseModelName(modelInfo, anzeigeCounter) {
+    label = await modelInfo.getProperty('textContent');
     model = await label.jsonValue();
     model = model.substr(model.search('G') - 4, 150);
 
@@ -141,12 +129,11 @@ async function modelTextParse([inputModelText], worksheetCounter){
     processor = model.substr(model.search('G') - 4, 22);
     if (processor.search('Chip') == -1) {
         processor = processor.replace('Intel Core ', '');
-        // if(processor.search(')') != -1){
-        //     processor = processor.replace(')', '');    // not now
-        // }
     }
+
     // making RAM text look nice
     RAM = parseInt(model.substr(model.search('RAM') - 6, 2));
+
     // making SSD text look nice
     if (model.search('PCIe') != -1) {
         if (model.search('TB') != -1) {
@@ -165,34 +152,32 @@ async function modelTextParse([inputModelText], worksheetCounter){
         }
     }
 
-    //write to xlsx
+    // write to xlsx
     worksheet.cell(anzeigeCounter + 1, 1).string(processor);
     worksheet.cell(anzeigeCounter + 1, 2).number(RAM);
     worksheet.cell(anzeigeCounter + 1, 3).string(SSD);
 
-    // ============== this is colors ==== (looks like no need to return)
+    // this is colors
     if (model.search(color[0]) != -1) {
-        worksheet.cell(worksheetCounter + 1, 4).string(color[0]);
+        worksheet.cell(anzeigeCounter + 1, 4).string(color[0]);
     }
-    else if (model.search(color[1]) != -1) {
-        worksheet.cell(worksheetCounter + 1, 4).string(color[1]);
+    if (model.search(color[1]) != -1) {
+        worksheet.cell(anzeigeCounter + 1, 4).string(color[1]);
     }
-    else if (model.search(color[2]) != -1) {
-        worksheet.cell(worksheetCounter + 1, 4).string(color[2]);
+    if (model.search(color[2]) != -1) {
+        worksheet.cell(anzeigeCounter + 1, 4).string(color[2]);
     }
-    else if (model.search(color[3]) != -1) {
-        worksheet.cell(worksheetCounter + 1, 4).string(color[3]);
-    }
-    else {
-        worksheet.cell(worksheetCounter + 1, 4).string(color[1]);
+    if (model.search(color[3]) != -1) {
+        worksheet.cell(anzeigeCounter + 1, 4).string(color[3]);
     }
 
-    if (model.search(qwerty) != -1) { worksheet.cell(worksheetCounter + 1, 5).string(qwerty); } // no need to return
-
-    //return processor, RAM, SSD; //если мы и так пишем это в эксель то зачем ретюрн
+    // this is keyboard
+    if (model.search(qwerty) != -1) {
+        worksheet.cell(anzeigeCounter + 1, 5).string(qwerty);
+    }
 }
 
-//        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
+// ************************************** MAIN ******************************************************
 async function scrapeMacs(){
 
     /*
@@ -205,7 +190,7 @@ async function scrapeMacs(){
     +  (2020      Air)
     */
     
-    const browser = await puppeteer.launch({headless: false, slowMo: 150}); // [_][_][_][_][_][_][_][_] );//
+    const browser = await puppeteer.launch({headless: false, slowMo: 550}); // [_][_][_][_][_][_][_][_] );//
     const page = await browser.newPage();
     console.clear();
     console.log('- - - - - NEW SCAN ' + today + ' - - - - -')
@@ -571,34 +556,9 @@ async function scrapeMacs(){
                 if (btnTxtKA != 'Kein Ankauf') {
                     // getting model text (DO NOT PRINT in the console)
                     [modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
-                    label = await modelText.getProperty('textContent');
-                    model = await label.jsonValue();
-                    model = model.substr(model.search('G') - 4, 150);
-
-                    // making Processor text look nice
-                    processor = model.substr(model.search('G') - 4, 22);
-                    if (processor.search('Chip') == -1) {
-                        processor = processor.replace('Intel Core ', '');
-                    }
-                    // making RAM text look nice
-                    RAM = parseInt(model.substr(model.search('RAM') - 6, 2));
-                    // making SSD text look nice
-                    if (model.search('PCIe') != -1) {
-                        if (model.search('TB') != -1) {
-                            SSD = model.substr(model.search('TB') - 2, 4);
-                        }
-                        else {
-                            SSD = model.substr(model.search('SSD') - 12, 6);
-                        }
-                    }
-                    else {
-                        if (model.search('TB') != -1) {
-                            SSD = model.substr(model.search('TB') - 2, 4);
-                        }
-                        else {
-                            SSD = model.substr(model.search('SSD') - 7, 6);
-                        }
-                    }
+                    
+                    // parse model name: Processor, RAM, SSD, Color, QWERTY
+                    await parseModelName(modelText, anzeigeCounter);
 
                     // excel styles
                     excelStyles(anzeigeCounter);
@@ -629,28 +589,6 @@ async function scrapeMacs(){
 
                     await page.goto(link);
                     //wait delay(defaultTime); //test OCT
-
-                    //write to xlsx
-                    worksheet.cell(anzeigeCounter + 1, 1).string(processor);
-                    worksheet.cell(anzeigeCounter + 1, 2).number(RAM);
-                    worksheet.cell(anzeigeCounter + 1, 3).string(SSD);
-
-                    if (model.search(color[0]) != -1) {
-                        worksheet.cell(anzeigeCounter + 1, 4).string(color[0]);
-                    }
-                    if (model.search(color[1]) != -1) {
-                        worksheet.cell(anzeigeCounter + 1, 4).string(color[1]);
-                    }
-                    if (model.search(color[2]) != -1) {
-                        worksheet.cell(anzeigeCounter + 1, 4).string(color[2]);
-                    }
-                    if (model.search(color[3]) != -1) {
-                        worksheet.cell(anzeigeCounter + 1, 4).string(color[3]);
-                    }
-
-                    if (model.search(qwerty) != -1) {
-                        worksheet.cell(anzeigeCounter + 1, 5).string(qwerty);
-                    }
 
                     setupPrices(priceWN, anzeigeCounter);
 
@@ -818,11 +756,13 @@ async function scrapeMacs(){
 
     finish();
 }
-//        ˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙˙
+// ************************************** MAIN ******************************************************
 scrapeMacs();
+
+
 
 //TODO:
 // multithread
 // new 16
 // 14 is just duplicate of 16 once its finished
-// я сейчас разделю на функции и усовершенстую так что потом вернуть к одной функции в которую буду передавать ссылки и определять сценарий исходя из этого
+// я сейчас разделю на функции и усовершенстую так, что потом вернуть к одной функции в которую буду передавать ссылки и определять сценарий исходя из этого
