@@ -574,7 +574,7 @@ async function scrapeMacs(){
                     await mainPageButton.evaluate(mainPageButton => mainPageButton.click());
                     await delay(defaultTime); // it is necessary
                     console.log('16 check 4');
-                    
+
                     // doing Zustand WieNeu survey
                     var questionDiv = 1;
                     for (; questionDiv < 7; questionDiv++) { // 29.03.22
@@ -791,8 +791,5 @@ scrapeMacs();
 
 //TODO:
 // if price == -,--
-// separate 13 and 15 inch
-// Починить ошибку 500 (catch)
 // ask API
 // new 16
-// new 14
