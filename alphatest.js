@@ -93,23 +93,23 @@ function formatTables() {
     worksheet.column(2).setWidth(8);
     worksheet.column(7).setWidth(9);
 }
-function excelStyles(anzeigeCounter){
-    worksheet.cell(anzeigeCounter + 1, 7).style(bgGreen);
-    worksheet.cell(anzeigeCounter + 1, 9).style(red);
-    worksheet.cell(anzeigeCounter + 1, 8).style(yellow);
-    worksheet.cell(anzeigeCounter + 1, 6).style(simple);
-    worksheet.cell(anzeigeCounter + 1, 10).style(simple);
+function excelStyles(worksheetCounter){
+    worksheet.cell(worksheetCounter + 1, 7).style(bgGreen);
+    worksheet.cell(worksheetCounter + 1, 9).style(red);
+    worksheet.cell(worksheetCounter + 1, 8).style(yellow);
+    worksheet.cell(worksheetCounter + 1, 6).style(simple);
+    worksheet.cell(worksheetCounter + 1, 10).style(simple);
 }
 // other functions
 function delay(time) {
     return new Promise(function(resolve) { setTimeout(resolve, time) });
 }
-function setupPrices(priceWN, anzeigeCounter){
-    if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 6).number(0) : worksheet.cell(anzeigeCounter + 1, 6).number(parseInt(priceWN * 0.863)));
-    if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 7).number(0) : worksheet.cell(anzeigeCounter + 1, 7).number(priceWN));
-    if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 8).number(0) : worksheet.cell(anzeigeCounter + 1, 8).number(parseInt(priceWN * 0.908)));
-    if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 9).number(0) : worksheet.cell(anzeigeCounter + 1, 9).number(parseInt(priceWN * 0.818)));
-    if (isNaN(priceWN) ? worksheet.cell(anzeigeCounter + 1, 10).number(0) : worksheet.cell(anzeigeCounter + 1, 10).number(parseInt(priceWN - ((priceWN * 0.908 + priceWN * 0.818)/2))));
+function setupPrices(priceWN, worksheetCounter){
+    if (isNaN(priceWN) ? worksheet.cell(worksheetCounter + 1, 6).number(0) : worksheet.cell(worksheetCounter + 1, 6).number(parseInt(priceWN * 0.863)));
+    if (isNaN(priceWN) ? worksheet.cell(worksheetCounter + 1, 7).number(0) : worksheet.cell(worksheetCounter + 1, 7).number(priceWN));
+    if (isNaN(priceWN) ? worksheet.cell(worksheetCounter + 1, 8).number(0) : worksheet.cell(worksheetCounter + 1, 8).number(parseInt(priceWN * 0.908)));
+    if (isNaN(priceWN) ? worksheet.cell(worksheetCounter + 1, 9).number(0) : worksheet.cell(worksheetCounter + 1, 9).number(parseInt(priceWN * 0.818)));
+    if (isNaN(priceWN) ? worksheet.cell(worksheetCounter + 1, 10).number(0) : worksheet.cell(worksheetCounter + 1, 10).number(parseInt(priceWN - ((priceWN * 0.908 + priceWN * 0.818)/2))));
 }
 async function launcher(call) {
     var answer = prompt('Scan? (Y/n)-> ');
@@ -120,8 +120,7 @@ async function launcher(call) {
         console.log('this model ignored');
     }
 }
-async function parseModelName(modelInfo, anzeigeCounter, worksheetCounter) {
-    console.log('entered function')
+async function parseModelName(modelInfo, worksheetCounter) {
 
     label = await modelInfo.getProperty('textContent');
     model = await label.jsonValue();
@@ -158,27 +157,27 @@ async function parseModelName(modelInfo, anzeigeCounter, worksheetCounter) {
     excelStyles(worksheetCounter);
 
     // write to xlsx
-    worksheet.cell(anzeigeCounter + 1, 1).string(processor);
-    worksheet.cell(anzeigeCounter + 1, 2).number(RAM);
-    worksheet.cell(anzeigeCounter + 1, 3).string(SSD);
+    worksheet.cell(worksheetCounter + 1, 1).string(processor);
+    worksheet.cell(worksheetCounter + 1, 2).number(RAM);
+    worksheet.cell(worksheetCounter + 1, 3).string(SSD);
 
     // this is colors
     if (model.search(color[0]) != -1) {
-        worksheet.cell(anzeigeCounter + 1, 4).string(color[0]);
+        worksheet.cell(worksheetCounter + 1, 4).string(color[0]);
     }
     if (model.search(color[1]) != -1) {
-        worksheet.cell(anzeigeCounter + 1, 4).string(color[1]);
+        worksheet.cell(worksheetCounter + 1, 4).string(color[1]);
     }
     if (model.search(color[2]) != -1) {
-        worksheet.cell(anzeigeCounter + 1, 4).string(color[2]);
+        worksheet.cell(worksheetCounter + 1, 4).string(color[2]);
     }
     if (model.search(color[3]) != -1) {
-        worksheet.cell(anzeigeCounter + 1, 4).string(color[3]);
+        worksheet.cell(worksheetCounter + 1, 4).string(color[3]);
     }
 
     // this is keyboard
     if (model.search(qwerty) != -1) {
-        worksheet.cell(anzeigeCounter + 1, 5).string(qwerty);
+        worksheet.cell(worksheetCounter + 1, 5).string(qwerty);
     }
 }
 
@@ -194,7 +193,7 @@ async function scrapeMacs(){
     +   //2021      Pro 14
     +  (2020      Air)
     */
-    
+
     const browser = await puppeteer.launch();//{headless: false, slowMo: 550}); // [_][_][_][_][_][_][_][_] );//
     const page = await browser.newPage();
     console.clear();
@@ -210,7 +209,7 @@ async function scrapeMacs(){
         if (year < 2018){
             year = 2018;
         }
-        while (year < 2019) {
+        while (year < 2020) {
             try {
                 var anzeigeCounter = 1;
                 var pageNumber = 1;
@@ -251,8 +250,7 @@ async function scrapeMacs(){
                             [modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
 
                             // parse model name: Processor, RAM, SSD, Color, QWERTY
-                            await parseModelName(modelText, anzeigeCounter, worksheetCounter);
-                            //console.log(modelText);
+                            await parseModelName(modelText, worksheetCounter);
 
                             // pressing verkaufen button
                             [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[' + anzeigeCounter + ']/a/div/div[5]/button/ng-switch/span');
@@ -261,7 +259,7 @@ async function scrapeMacs(){
 
                             // doing Zustand WieNeu survey
                             var questionDiv = 1;
-                            for (; questionDiv < 7; questionDiv++) { // 29.03.22
+                            for (; questionDiv < 8; questionDiv++) { // 29.03.22 // 27.05.22
                                 if (questionDiv < 6){
                                     [survey] = await page.$x('//*[@id="grading-form"]/div[1]/ry-grading-questions/div[' + questionDiv + ']/div/ry-grading-radio/div[1]/div[1]/label');
                                 }
@@ -482,7 +480,7 @@ async function scrapeMacs(){
                     await page.goto(link);
                     //wait delay(defaultTime);
 
-                    setupPrices(priceWN, anzeigeCounter);
+                    setupPrices(priceWN, worksheetCounter);
 
                     console.log(anzeigeCounter, 'done');
                 }
@@ -618,7 +616,7 @@ async function scrapeMacs(){
                         worksheet.cell(anzeigeCounter + 1, 5).string(qwerty);
                     }
 
-                    setupPrices(priceWN, anzeigeCounter);
+                    setupPrices(priceWN, worksheetCounter);
 
                     console.log(anzeigeCounter, 'done');
                 }

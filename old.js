@@ -241,17 +241,12 @@ async function scrapeMacs(){
 
                     for (; anzeigeCounter < anzeigen + 1; anzeigeCounter++) { // here you can limit number of anzeigen 'for( ; anzeigeCounter < anzeigen + 1; anzeigeCounter++){
                         // check if it is 'Kein Ankauf'
-                        
-                        //[mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[4]/button/ng-switch/span'); // 22.05.22
-                                                          //*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[                   ]/a/div/div[5]/button/ng-switch/span
                         [mainPageButton] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[' + anzeigeCounter + ']/a/div/div[5]/button/ng-switch/span');
                         btnTxt = await mainPageButton.getProperty('textContent');
                         btnTxtKA = await btnTxt.jsonValue();
                         try {
                             if (btnTxtKA != 'Kein Ankauf') {
                                 // getting model text (DO NOT PRINT in the console)
-                                //[modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
-                                                             //*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[                      ]/a/div/div[3]/text()
                                 [modelText] = await page.$x('//*[@id="ry"]/body/main/div[1]/div[2]/div/div/div/div/div[1]/div[' + anzeigeCounter + ']/a/div/div[3]/text()');
                                 label = await modelText.getProperty('textContent');
                                 model = await label.jsonValue();
